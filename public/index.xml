@@ -1,15 +1,16 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-	<channel>
-		<title></title>
-		<link>//localhost:60155/</link>
-		<description>Recent content on </description>
-		<generator>Hugo</generator>
-		<language>en</language>
-		
-		
-		
-		
-			<atom:link href="//localhost:60155/index.xml" rel="self" type="application/rss+xml" />
-	</channel>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>qiqi的神秘日志</title>
+        <link>http://localhost:1313/</link>
+        <description>Recent content on qiqi的神秘日志</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>zh-cn</language>
+        <copyright>© 2026 qiqi</copyright>
+        <lastBuildDate>Thu, 23 Jul 2026 14:55:55 +0800</lastBuildDate><atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" /><item>
+            <title>我的第一篇文章</title>
+            <link>http://localhost:1313/post/hello-world/</link>
+            <pubDate>Thu, 23 Jul 2026 14:55:55 +0800</pubDate>
+            <guid>http://localhost:1313/post/hello-world/</guid>
+            <description>&lt;p&gt;这是我用 Hugo 搭建的个人网站发布的第一篇文章！&lt;/p&gt;&#xA;&lt;h2 id=&#34;一个小标题&#34;&gt;一个小标题&#xD;&#xA;&lt;/h2&gt;&lt;p&gt;Hello, world. 🎉&lt;/p&gt;&#xA;</description>
+        </item></channel>
 </rss>
