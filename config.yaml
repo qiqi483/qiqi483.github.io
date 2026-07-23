@@ -79,6 +79,11 @@ menu:
       url: /life/
       params:
         icon: home
+    - identifier: admin
+      name: 管理后台
+      url: /admin/
+      params:
+        icon: user
     - identifier: bg-photo
       name: 背景照片
       url: "https://cn.bing.com/search?qs=SC&pq=beijingzhaopian&sk=CSYN1SC5&sc=13-15&pglt=43&q=%E8%83%8C%E6%99%AF%E7%85%A7%E7%89%87%E5%8A%A8%E6%BC%AB&cvid=33d26d1f23da475c99b8a6acade0d93a&gs_lcrp=EgRlZGdlKgYIBhAAGEAyBggAEEUYOTIGCAEQABhAMgYIAhAAGEAyBggDEAAYQDIGCAQQABhAMgYIBRAAGEAyBggGEAAYQDIGCAcQABhAMgYICBAAGEDSAQg5NTI5ajBqN6gCCLACAQ&FORM=ANNTA1&adppc=EDGEESS&PC=CNNDSE"

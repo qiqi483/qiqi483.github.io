@@ -7,7 +7,7 @@ on:
 
 # 授予 Actions 发布到 Pages 的权限
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
