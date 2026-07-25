@@ -16,9 +16,66 @@
 <meta property='og:description' content="山不在高，水不在深，有志者必成事">
 <meta property='og:url' content='http://localhost:1313/categories/'>
 <meta property='og:site_name' content='qiqi的神秘日志'>
-<meta property='og:type' content='website'><meta property='og:updated_time' content=' 2026-07-23T14:55:55&#43;08:00 '/>
+<meta property='og:type' content='website'><meta property='og:updated_time' content=' 2026-07-23T16:00:00&#43;08:00 '/>
 <meta name="twitter:title" content="Categories">
-<meta name="twitter:description" content="山不在高，水不在深，有志者必成事"><link rel="alternate" type="application/rss&#43;xml" href="http://localhost:1313/categories/index.xml">
+<meta name="twitter:description" content="山不在高，水不在深，有志者必成事"><link rel="alternate" type="application/rss&#43;xml" href="http://localhost:1313/categories/index.xml"><style>
+  body {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+  
+  .main {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  
+  .sidebar {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+  }
+  
+  .article-list--compact article {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
+  }
+  
+  .widget {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
+  }
+</style>
+
+<script>
+  (function() {
+    var backgrounds = [
+      'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1920&q=80',
+      'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1920&q=80',
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80',
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1920&q=80',
+      'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1920&q=80',
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80',
+      'https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=1920&q=80',
+      'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1920&q=80'
+    ];
+    
+    var randomIndex = Math.floor(Math.random() * backgrounds.length);
+    var selectedBg = backgrounds[randomIndex];
+    
+    var img = new Image();
+    img.onload = function() {
+      document.body.style.backgroundImage = 'url(' + selectedBg + ')';
+    };
+    img.onerror = function() {
+      document.body.style.backgroundImage = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+    };
+    img.src = selectedBg;
+  })();
+</script>
     </head>
     <body class="">
     <script>
@@ -43,7 +100,7 @@
         }
     })();
 </script>
-<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
     <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
         <span class="hamburger-box">
             <span class="hamburger-inner"></span>
@@ -53,9 +110,9 @@
     <header>
         <figure class="site-avatar">
                 <a href="/">
-                    <img src="img/avatar.png" 
-                        width=""
-                        height=""
+                    <img src="/img/avatar.png" 
+                        width="206"
+                        height="206"
                         class="site-logo"
                         loading="lazy"
                         alt="Avatar">
@@ -90,8 +147,148 @@
                     </a>
                 </li>
             
+                <li>
+                    <a 
+                        href='https://www.bilibili.com/'
+                        target="_blank"
+                        title="哔哩哔哩"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/>
+  <path d="M8.5 14.5l3-3.5 3 3.5"/>
+  <path d="M9 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
+  <path d="M15 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
+</svg>
+                        
+                    </a>
+                </li>
+            
         </ol><ol class="menu" id="main-menu">
         
+        
+        
+        <li >
+            <a href='/page/links/' >
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>收藏文章</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>收藏文章</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/life/' >
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>日常生活</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/games/' >
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                
+                <span>游戏制作</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/admin/' >
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>管理后台</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='https://cn.bing.com/search?qs=SC&amp;pq=beijingzhaopian&amp;sk=CSYN1SC5&amp;sc=13-15&amp;pglt=43&amp;q=%E8%83%8C%E6%99%AF%E7%85%A7%E7%89%87%E5%8A%A8%E6%BC%AB&amp;cvid=33d26d1f23da475c99b8a6acade0d93a&amp;gs_lcrp=EgRlZGdlKgYIBhAAGEAyBggAEEUYOTIGCAEQABhAMgYIAhAAGEAyBggDEAAYQDIGCAQQABhAMgYIBRAAGEAyBggGEAAYQDIGCAcQABhAMgYICBAAGEDSAQg5NTI5ajBqN6gCCLACAQ&amp;FORM=ANNTA1&amp;adppc=EDGEESS&amp;PC=CNNDSE' target="_blank">
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                
+                <span>背景照片</span>
+            </a>
+        </li>
         
         <li class="menu-bottom-section">
             <ol class="menu">
@@ -122,7 +319,124 @@
     </ol>
 </aside>
 
-    
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                <form action="/page/search/" class="search-form widget" >
+        <p>
+            <label>Search</label>
+            <input name="keyword" required placeholder="Type something..." />
+        
+            <button title="Search">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+            </button>
+        </p>
+    </form>
+            
+        
+            
+                
+            
+        
+            
+                
+<section class="widget tagCloud">
+    <div class="widget-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+    </div>
+    <h2 class="widget-title section-title">
+        
+            <a href="/categories/">
+                Categories
+            </a>
+        
+    </h2>
+
+    <div class="tagCloud-tags">
+        
+            <a href="/categories/python/">
+                Python
+            </a>
+        
+            <a href="/categories/%E7%94%9F%E6%B4%BB/">
+                生活
+            </a>
+        
+            <a href="/categories/%E7%94%9F%E6%B4%BB%E8%AE%B0%E5%BD%95/">
+                生活记录
+            </a>
+        
+    </div>
+</section>
+
+            
+        
+            
+                
+<section class="widget tagCloud">
+    <div class="widget-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-tag" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11 3L20 12a1.5 1.5 0 0 1 0 2L14 20a1.5 1.5 0 0 1 -2 0L3 11v-4a4 4 0 0 1 4 -4h4" />
+  <circle cx="9" cy="9" r="2" />
+</svg>
+
+
+
+    </div>
+    <h2 class="widget-title section-title">
+        
+            <a href="/tags/">
+                Tags
+            </a>
+        
+    </h2>
+
+    <div class="tagCloud-tags">
+        
+            <a href="/tags/python/">
+                Python
+            </a>
+        
+            <a href="/tags/%E5%B0%8F%E6%B8%B8%E6%88%8F/">
+                小游戏
+            </a>
+        
+            <a href="/tags/%E6%97%A5%E5%B8%B8/">
+                日常
+            </a>
+        
+            <a href="/tags/%E7%94%9F%E6%B4%BB/">
+                生活
+            </a>
+        
+            <a href="/tags/%E9%9A%8F%E7%AC%94/">
+                随笔
+            </a>
+        
+    </div>
+</section>
+
+            
+        
+    </aside>
+
 
             <main class="main full-width">
     <header>
@@ -134,7 +448,7 @@
 
         <div class="section-card">
             <div class="section-details">
-                <h3 class="section-count">1 page</h3>
+                <h3 class="section-count">3 pages</h3>
                 <h1 class="section-term">Categories</h1>
                 
             </div>
@@ -143,6 +457,24 @@
     
     
         <section class="article-list--compact">
+            
+                <article>
+    <a href="/categories/%E7%94%9F%E6%B4%BB%E8%AE%B0%E5%BD%95/">
+        <div class="article-details">
+            <h2 class="article-title">生活记录</h2>
+                <footer class="article-meta"><span class="article-description">1 page</span>
+                </footer></div>
+    </a>
+</article>
+            
+                <article>
+    <a href="/categories/python/">
+        <div class="article-details">
+            <h2 class="article-title">Python</h2>
+                <footer class="article-meta"><span class="article-description">1 page</span>
+                </footer></div>
+    </a>
+</article>
             
                 <article>
     <a href="/categories/%E7%94%9F%E6%B4%BB/">
