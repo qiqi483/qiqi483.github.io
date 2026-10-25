@@ -1,0 +1,1190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Browser Use - The AI browser agent</title>
+<meta name="description" content="Browser Use is the open-source browser agent. Give it a task and it plans, clicks, types and extracts, like a human navigating the web.">
+<style>
+  :root {
+    --paper: #fcfcfa;
+    --paper-2: #f4f2ec;
+    --paper-3: #ece9e1;
+    --ink: #171410;
+    --ink-2: #3f3a33;
+    --muted: #6d675c;
+    --line: #e5e1d7;
+    --line-strong: #d4cec1;
+    --ember: #c93600;
+    --ember-deep: #a92d00;
+    --ember-soft: #fbe7de;
+    --teal: #0b625a;
+    --teal-deep: #084b45;
+    --teal-soft: #e0efeb;
+    --gold: #d9a11b;
+    --gold-soft: #f8edd2;
+    --blue: #3b5f8f;
+    --blue-soft: #e3eaf4;
+    --shadow: 0 1px 2px rgba(23, 20, 16, .06), 0 10px 30px rgba(23, 20, 16, .08);
+    --shadow-lg: 0 24px 60px rgba(23, 20, 16, .14);
+    --radius: 8px;
+    --mono: "Cascadia Code", "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace;
+    --sans: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.55;
+    letter-spacing: 0;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  img, svg { display: block; }
+
+  :focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 3px; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+  .skip {
+    position: absolute; left: 12px; top: -48px; z-index: 100;
+    background: var(--ink); color: #fff; padding: 10px 14px; border-radius: var(--radius);
+    transition: top .15s ease;
+  }
+  .skip:focus { top: 12px; }
+
+  .icon { width: 18px; height: 18px; flex: none; }
+  .icon-sm { width: 15px; height: 15px; }
+  [data-icon] { display: inline-flex; align-items: center; justify-content: center; }
+
+  .wrap { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+
+  /* Nav */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(252, 252, 250, .88);
+    backdrop-filter: saturate(1.2) blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner { display: flex; align-items: center; gap: 20px; height: 64px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; }
+  .logo-mark {
+    width: 30px; height: 30px; border-radius: 7px; background: var(--ink);
+    display: inline-flex; align-items: center; justify-content: center; color: #fff;
+  }
+  .logo-mark .icon { width: 17px; height: 17px; }
+  .brand em { font-style: normal; color: var(--ember); }
+  .nav-links { display: flex; align-items: center; gap: 4px; margin-left: 8px; }
+  .nav-links a {
+    padding: 8px 11px; border-radius: var(--radius); color: var(--ink-2);
+    font-size: 14.5px; font-weight: 500;
+  }
+  .nav-links a:hover { color: var(--ink); background: var(--paper-2); }
+  .nav-cta { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .gh-link {
+    display: inline-flex; align-items: center; gap: 7px; padding: 8px 11px;
+    border: 1px solid var(--line-strong); border-radius: var(--radius);
+    font-size: 14px; font-weight: 600; color: var(--ink-2);
+  }
+  .gh-link:hover { border-color: var(--ink); color: var(--ink); }
+  .nav-burger { display: none; margin-left: auto; background: none; border: 0; padding: 8px; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+    min-height: 44px; padding: 0 18px; border-radius: var(--radius);
+    border: 1px solid transparent; font-weight: 650; font-size: 15px;
+    transition: background .15s ease, border-color .15s ease, transform .05s ease;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: var(--ember); color: #fff; }
+  .btn-primary:hover { background: var(--ember-deep); }
+  .btn-ghost { background: transparent; color: var(--ink); border-color: var(--line-strong); }
+  .btn-ghost:hover { border-color: var(--ink); }
+  .btn-dark { background: var(--ink); color: #fff; }
+  .btn-dark:hover { background: #2b2620; }
+  .btn-teal { background: var(--teal); color: #fff; }
+  .btn-teal:hover { background: var(--teal-deep); }
+
+  /* Hero */
+  .hero { padding: 64px 0 24px; overflow: hidden; }
+  .hero-grid { display: grid; gap: 48px; align-items: center; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 700; letter-spacing: .02em;
+    text-transform: uppercase; color: var(--teal);
+  }
+  .eyebrow::before { content: ""; width: 22px; height: 2px; background: var(--teal); }
+  .hero h1 { margin: 18px 0 4px; font-size: 54px; line-height: 1.02; font-weight: 800; }
+  .hero .tagline { margin: 0 0 18px; font-size: 27px; line-height: 1.18; font-weight: 600; color: var(--ink-2); }
+  .hero .lede { margin: 0 0 26px; font-size: 17px; color: var(--muted); max-width: 54ch; }
+  .hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 22px; }
+  .hero-proof { display: flex; flex-wrap: wrap; gap: 16px 22px; font-size: 13.5px; color: var(--muted); }
+  .hero-proof b { color: var(--ink); font-weight: 700; }
+
+  /* Console */
+  .console {
+    background: #fff; border: 1px solid var(--line-strong); border-radius: 12px;
+    box-shadow: var(--shadow-lg); overflow: hidden; position: relative;
+  }
+  .console-bar {
+    display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+    background: var(--paper-2); border-bottom: 1px solid var(--line);
+  }
+  .dots { display: flex; gap: 6px; }
+  .dots i { width: 11px; height: 11px; border-radius: 50%; background: var(--line-strong); }
+  .dots i:nth-child(1) { background: #ee6a5f; }
+  .dots i:nth-child(2) { background: #e9b949; }
+  .dots i:nth-child(3) { background: #65b26b; }
+  .addr {
+    flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0;
+    background: #fff; border: 1px solid var(--line); border-radius: 7px;
+    padding: 6px 10px; font-family: var(--mono); font-size: 12px; color: var(--ink-2);
+  }
+  .addr .icon { width: 13px; height: 13px; color: var(--teal); }
+  .addr span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .live { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: var(--muted); }
+  .live .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); }
+  .live.on { color: var(--ember); }
+  .live.on .pulse { background: var(--ember); animation: pulse 1s infinite; }
+  .live.done { color: var(--teal); }
+  .live.done .pulse { background: var(--teal); }
+  @keyframes pulse { 50% { opacity: .35; } }
+
+  .console-body { display: grid; grid-template-rows: minmax(220px, 1fr) auto; min-height: 460px; }
+  .stage { background: #fbfaf7; border-bottom: 1px solid var(--line); min-height: 220px; padding: 18px; }
+  .runner { padding: 14px 16px; }
+  .runner-top { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .progress { flex: 1; height: 6px; background: var(--paper-3); border-radius: 999px; overflow: hidden; }
+  .progress span { display: block; width: 0; height: 100%; background: var(--ember); border-radius: 999px; transition: width .35s ease; }
+  .timer { font-family: var(--mono); font-size: 12px; color: var(--muted); min-width: 38px; text-align: right; }
+  .log { display: flex; flex-direction: column; gap: 7px; max-height: 150px; overflow: auto; }
+  .step { display: flex; align-items: flex-start; gap: 9px; font-size: 13.5px; }
+  .step .icon { width: 16px; height: 16px; margin-top: 1px; color: var(--muted); }
+  .step .step-text { flex: 1; color: var(--ink-2); }
+  .step.pending { opacity: .55; }
+  .step.active .icon { color: var(--ember); }
+  .step.active .step-text { color: var(--ink); font-weight: 600; }
+  .step.done .icon { color: var(--teal); }
+  .step .chip-status { font-size: 11px; font-weight: 700; }
+  .step.active .chip-status { color: var(--ember); }
+  .step.done .chip-status { color: var(--teal); }
+
+  .result { margin-top: 10px; padding: 11px 12px; background: var(--teal-soft); border: 1px solid #cce4de; border-radius: var(--radius); }
+  .result-head { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 800; color: var(--teal); text-transform: uppercase; }
+  .result-body { display: flex; gap: 10px; align-items: flex-start; margin-top: 6px; }
+  .result-body p { margin: 0; flex: 1; font-size: 13.5px; color: var(--ink-2); }
+  .icon-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 34px; padding: 0 10px; border-radius: 7px; border: 1px solid var(--line-strong);
+    background: #fff; font-size: 12.5px; font-weight: 650; color: var(--ink-2);
+  }
+  .icon-btn:hover { border-color: var(--teal); color: var(--teal); }
+  .icon-btn .icon { width: 14px; height: 14px; }
+
+  .console-input { border-top: 1px solid var(--line); padding: 12px; background: #fff; }
+  .console-input form { display: flex; flex-direction: column; gap: 10px; }
+  .console-input textarea {
+    width: 100%; min-height: 58px; resize: vertical; padding: 10px 12px;
+    border: 1px solid var(--line-strong); border-radius: var(--radius);
+    font: 14px/1.5 var(--sans); color: var(--ink); background: #fff;
+  }
+  .console-input textarea:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px var(--teal-soft); }
+  .input-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+  .presets { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    min-height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line-strong);
+    background: #fff; font-size: 12.5px; font-weight: 600; color: var(--ink-2);
+  }
+  .chip:hover { border-color: var(--ink); color: var(--ink); }
+  .chip.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  /* Mock page */
+  .mock { font-size: 13px; color: var(--ink-2); }
+  .mock-top { display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--line); margin-bottom: 14px; }
+  .mock-logo { font-weight: 800; font-size: 15px; color: var(--ink); }
+  .mock-logo em { font-style: normal; color: var(--ember); }
+  .mock-nav { margin-left: auto; display: flex; gap: 8px; color: var(--muted); }
+  .mock-panel { border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; background: #fff; box-shadow: var(--shadow); }
+  .mock-h { font-weight: 800; font-size: 16px; color: var(--ink); margin-bottom: 12px; }
+  .mock-sub { color: var(--muted); margin: 0 0 12px; }
+  .tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .tag { padding: 6px 10px; border: 1px solid var(--line-strong); border-radius: 7px; font-weight: 600; color: var(--ink-2); }
+  .tag.sel { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .field { border: 1px solid var(--line-strong); border-radius: 7px; padding: 9px 11px; margin-bottom: 10px; color: var(--ink); }
+  .mock-btn { display: inline-flex; min-height: 36px; align-items: center; justify-content: center; padding: 0 14px; border-radius: 7px; background: var(--ember); color: #fff; font-weight: 700; }
+  .mock-btn.sel { background: var(--teal); }
+  .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; font-weight: 700; color: var(--ink); }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+  .cal-grid i { display: flex; align-items: center; justify-content: center; aspect-ratio: 1; border-radius: 6px; font-style: normal; color: var(--muted); }
+  .cal-grid i.dim { opacity: .3; }
+  .cal-grid i.pick { background: var(--ember); color: #fff; font-weight: 700; }
+  .cal-grid i.head { font-size: 11px; color: var(--muted); }
+  .slots { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .slot { padding: 7px 11px; border: 1px solid var(--line-strong); border-radius: 7px; font-weight: 600; color: var(--ink-2); }
+  .slot.sel { background: var(--ember); color: #fff; border-color: var(--ember); }
+  .ok { display: inline-flex; align-items: center; gap: 7px; padding: 6px 11px; border-radius: 999px; background: var(--teal-soft); color: var(--teal); font-weight: 700; font-size: 12.5px; }
+  .summary { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; margin-bottom: 12px; }
+  .summary li { display: flex; justify-content: space-between; gap: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+  .summary b { font-weight: 700; color: var(--ink); }
+  .hn-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); align-items: flex-start; }
+  .hn-item .rank { color: var(--muted); font-family: var(--mono); font-size: 12px; }
+  .hn-item h4 { margin: 0 0 2px; font-size: 14px; font-weight: 700; color: var(--ink); }
+  .hn-item p { margin: 0; font-size: 12px; color: var(--muted); }
+  .hn-item.top { background: var(--gold-soft); margin: 0 -8px; padding-left: 8px; padding-right: 8px; border-radius: 7px; border-bottom: 0; }
+  .form-field { margin-bottom: 10px; }
+  .form-field label { display: block; font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .form-field input, .form-field textarea { width: 100%; border: 1px solid var(--line-strong); border-radius: 7px; padding: 8px 10px; font: 13px var(--sans); color: var(--ink); }
+  .skeleton { display: grid; gap: 10px; }
+  .skeleton i { height: 14px; border-radius: 6px; background: linear-gradient(90deg, var(--paper-3) 25%, #f1efe8 50%, var(--paper-3) 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; }
+  .skeleton i.w60 { width: 60%; } .skeleton i.w40 { width: 40%; } .skeleton i.w80 { width: 80%; } .skeleton i.tall { height: 42px; }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+
+  /* Sections */
+  section { padding: 84px 0; }
+  .band { background: var(--paper-2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .sec-head { max-width: 720px; margin-bottom: 40px; }
+  .sec-head h2 { margin: 14px 0 10px; font-size: 38px; line-height: 1.08; font-weight: 800; }
+  .sec-head p { margin: 0; font-size: 17px; color: var(--muted); }
+  .kicker { font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--ember); letter-spacing: .02em; }
+
+  .trust { padding: 26px 0; border-bottom: 1px solid var(--line); }
+  .trust-inner { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 26px; }
+  .trust-label { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+  .trust-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .trust-chips span { padding: 7px 12px; border: 1px solid var(--line); border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--ink-2); background: #fff; }
+  .trust-stats { margin-left: auto; display: flex; flex-wrap: wrap; gap: 22px; }
+  .trust-stats div { text-align: right; }
+  .trust-stats b { display: block; font-size: 20px; font-weight: 800; }
+  .trust-stats span { font-size: 12px; color: var(--muted); }
+
+  .cards3 { display: grid; gap: 18px; }
+  .path-card { display: flex; flex-direction: column; gap: 12px; padding: 24px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+  .path-top { display: flex; align-items: center; justify-content: space-between; }
+  .icon-box { width: 44px; height: 44px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; }
+  .icon-box.ember { background: var(--ember-soft); color: var(--ember); }
+  .icon-box.teal { background: var(--teal-soft); color: var(--teal); }
+  .icon-box.gold { background: var(--gold-soft); color: var(--gold); }
+  .badge { padding: 5px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 800; text-transform: uppercase; }
+  .badge.teal { background: var(--teal-soft); color: var(--teal); }
+  .badge.ember { background: var(--ember-soft); color: var(--ember); }
+  .badge.gold { background: var(--gold-soft); color: var(--gold); }
+  .path-card h3 { margin: 0; font-size: 21px; font-weight: 800; }
+  .path-card p { margin: 0; color: var(--muted); font-size: 15px; flex: 1; }
+  .path-link { display: inline-flex; align-items: center; gap: 7px; font-weight: 700; font-size: 14.5px; color: var(--teal); }
+  .path-link .icon { width: 16px; height: 16px; }
+
+  .code-wrap { margin-top: 18px; background: #14110d; border-radius: 12px; overflow: hidden; color: #e8e4da; box-shadow: var(--shadow); }
+  .code-tabs { display: flex; gap: 4px; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,.08); overflow-x: auto; }
+  .code-tab { display: inline-flex; align-items: center; gap: 8px; padding: 8px 13px; border-radius: 7px; border: 0; background: transparent; color: #b9b3a7; font-weight: 650; font-size: 13.5px; }
+  .code-tab:hover { color: #fff; }
+  .code-tab.active { background: rgba(255,255,255,.09); color: #fff; }
+  .code-tab .icon { width: 15px; height: 15px; }
+  .code-body { position: relative; }
+  .code-body pre { margin: 0; padding: 20px; overflow-x: auto; font-family: var(--mono); font-size: 13px; line-height: 1.65; color: #e8e4da; }
+  .code-body .copy {
+    position: absolute; top: 10px; right: 10px;
+    display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px;
+    background: rgba(255,255,255,.08); color: #cfc9bd; border: 1px solid rgba(255,255,255,.12);
+    border-radius: 7px; font-size: 12px; font-weight: 650;
+  }
+  .code-body .copy:hover { background: rgba(255,255,255,.14); color: #fff; }
+  .tok-kw { color: #ff9a6b; } .tok-str { color: #b9d88d; } .tok-cm { color: #8f897e; } .tok-fn { color: #8fd0c8; }
+
+  .features-grid { display: grid; gap: 18px; }
+  .feat { padding: 22px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+  .feat h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; font-size: 17px; font-weight: 800; }
+  .feat p { margin: 0; color: var(--muted); font-size: 14.5px; }
+
+  .cloud-split { display: grid; gap: 48px; align-items: center; }
+  .cloud-copy h2 { margin: 14px 0 12px; font-size: 34px; line-height: 1.1; font-weight: 800; }
+  .cloud-copy p { margin: 0 0 20px; color: var(--muted); font-size: 16.5px; max-width: 52ch; }
+  .spec-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+  .spec-list li { display: flex; gap: 11px; align-items: flex-start; }
+  .spec-list .icon { color: var(--teal); margin-top: 2px; }
+  .spec-list b { display: block; font-size: 15px; }
+  .spec-list span { color: var(--muted); font-size: 14px; }
+  .cloud-visual { background: var(--ink); border-radius: 12px; padding: 18px; box-shadow: var(--shadow-lg); color: #fff; }
+  .cloud-visual .cv-top { display: flex; align-items: center; gap: 8px; color: #9b9488; font-size: 12px; font-family: var(--mono); margin-bottom: 14px; }
+  .cv-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .cv-cell { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09); border-radius: 9px; padding: 14px; }
+  .cv-cell b { display: block; font-size: 20px; font-weight: 800; }
+  .cv-cell span { font-size: 12px; color: #b9b3a7; }
+  .cv-cell .icon { color: #ff9a6b; margin-bottom: 8px; }
+
+  .model-wrap { display: grid; gap: 18px; }
+  .model-card { padding: 26px; background: var(--ink); color: #fff; border-radius: 12px; }
+  .model-card .eyebrow { color: #ff9a6b; }
+  .model-card h3 { margin: 12px 0 8px; font-size: 30px; font-weight: 800; }
+  .model-card p { margin: 0 0 18px; color: #c9c3b8; max-width: 62ch; }
+  .model-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+  .model-meta span { padding: 6px 11px; border-radius: 999px; border: 1px solid rgba(255,255,255,.18); font-size: 12.5px; font-weight: 600; }
+  .providers { margin-top: 18px; display: grid; gap: 10px; }
+  .provider { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+  .provider .icon { color: var(--ink-2); }
+  .provider b { font-size: 15px; }
+  .provider span { margin-left: auto; color: var(--muted); font-size: 13px; }
+
+  .price-grid { display: grid; gap: 18px; }
+  .price { display: flex; flex-direction: column; gap: 14px; padding: 26px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+  .price.hot { border-color: var(--ember); box-shadow: 0 0 0 1px var(--ember), var(--shadow-lg); }
+  .price .amount { font-size: 34px; font-weight: 800; line-height: 1; }
+  .price .amount span { font-size: 15px; font-weight: 600; color: var(--muted); }
+  .price h3 { margin: 0; font-size: 19px; font-weight: 800; }
+  .price p { margin: 0; color: var(--muted); font-size: 14.5px; flex: 1; }
+  .price ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 9px; }
+  .price li { display: flex; gap: 9px; align-items: flex-start; font-size: 14px; color: var(--ink-2); }
+  .price li .icon { color: var(--teal); width: 16px; height: 16px; margin-top: 2px; }
+
+  .integrations { display: flex; flex-wrap: wrap; gap: 10px; }
+  .integration { display: inline-flex; align-items: center; gap: 9px; padding: 12px 16px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); font-weight: 700; font-size: 14.5px; box-shadow: var(--shadow); }
+  .integration .icon { color: var(--ink-2); }
+  .integration:hover { border-color: var(--ink); }
+
+  .faq { display: grid; gap: 10px; max-width: 860px; }
+  .faq details { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+  .faq summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; cursor: pointer; font-weight: 700; font-size: 16px; list-style: none; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary .icon { color: var(--muted); transition: transform .2s ease; }
+  .faq details[open] summary .icon { transform: rotate(180deg); }
+  .faq .faq-a { padding: 0 20px 18px; color: var(--muted); font-size: 15px; }
+  .faq .faq-a code { font-family: var(--mono); font-size: 13px; background: var(--paper-2); padding: 2px 5px; border-radius: 4px; color: var(--ink-2); }
+
+  .cta-band { background: var(--ink); color: #fff; }
+  .cta-band .inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 22px; }
+  .cta-band h2 { margin: 0 0 6px; font-size: 32px; font-weight: 800; }
+  .cta-band p { margin: 0; color: #c9c3b8; }
+
+  footer { background: var(--paper-2); border-top: 1px solid var(--line); padding: 56px 0 36px; }
+  .foot-grid { display: grid; gap: 34px; }
+  .foot-brand p { color: var(--muted); font-size: 14.5px; max-width: 34ch; }
+  .foot-cols { display: grid; gap: 24px; }
+  .foot-col h4 { margin: 0 0 12px; font-size: 13px; text-transform: uppercase; color: var(--muted); }
+  .foot-col a { display: block; padding: 5px 0; font-size: 14.5px; color: var(--ink-2); }
+  .foot-col a:hover { color: var(--ink); }
+  .foot-bottom { display: flex; flex-wrap: wrap; gap: 12px 22px; align-items: center; justify-content: space-between; margin-top: 38px; padding-top: 22px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13.5px; }
+
+  .menu-panel { display: none; }
+
+  @media (max-width: 980px) {
+    .hero { padding-top: 40px; }
+    .hero-grid { grid-template-columns: 1fr; gap: 34px; }
+    .hero h1 { font-size: 44px; }
+    .nav-links, .nav-cta .gh-link, .nav-cta .btn { display: none; }
+    .nav-burger { display: inline-flex; }
+    .menu-panel { display: block; border-top: 1px solid var(--line); background: var(--paper); }
+    .menu-panel[hidden] { display: none; }
+    .menu-panel .wrap { display: grid; gap: 4px; padding: 12px 0 18px; }
+    .menu-panel a { padding: 10px 4px; font-weight: 650; color: var(--ink-2); }
+    .menu-panel a:hover { color: var(--ink); }
+    .cards3, .features-grid, .model-wrap, .price-grid { grid-template-columns: 1fr; }
+    .trust-stats { margin-left: 0; }
+    .trust-stats div { text-align: left; }
+  }
+  @media (min-width: 640px) {
+    .cards3, .features-grid { grid-template-columns: repeat(2, 1fr); }
+    .model-wrap { grid-template-columns: 1.15fr .85fr; }
+    .price-grid { grid-template-columns: repeat(3, 1fr); }
+    .foot-cols { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (min-width: 1000px) {
+    .hero-grid { grid-template-columns: 1.02fr .98fr; }
+    .cards3, .features-grid { grid-template-columns: repeat(3, 1fr); }
+    .cloud-split { grid-template-columns: 1.05fr .95fr; }
+    .foot-grid { grid-template-columns: 1.3fr 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top" aria-label="Browser Use home">
+      <span class="logo-mark" aria-hidden="true"><span data-icon="mouse-pointer-click"></span></span>
+      <span>Browser<em>Use</em></span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#paths">Product</a>
+      <a href="#features">Features</a>
+      <a href="#models">Models</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="gh-link" href="https://github.com/browser-use/browser-use"><span data-icon="github"></span> Star on GitHub</a>
+      <a class="btn btn-primary" href="#paths">Get started</a>
+    </div>
+    <button class="nav-burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="menu"><span data-icon="menu"></span></button>
+  </div>
+  <div class="menu-panel" id="menu" hidden>
+    <div class="wrap">
+      <a href="#paths">Product</a>
+      <a href="#features">Features</a>
+      <a href="#models">Models</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a href="https://github.com/browser-use/browser-use">GitHub</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" id="top">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow">The AI browser agent</span>
+        <h1>Browser Use</h1>
+        <p class="tagline">Navigate the web like a human does.</p>
+        <p class="lede">Give an agent a task and it plans, clicks, types and extracts. Book the appointment, fill the form, pull the data, and hand you a structured result.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-primary" href="#paths">Start building <span data-icon="arrow-right"></span></a>
+          <a class="btn btn-ghost" href="https://docs.browser-use.com">Read the docs</a>
+        </div>
+        <div class="hero-proof">
+          <span><b>Open source</b> · MIT</span>
+          <span><b>31</b> browser actions</span>
+          <span><b>Python</b> &amp; TypeScript</span>
+        </div>
+      </div>
+
+      <div class="console" aria-label="Browser agent demo">
+        <div class="console-bar">
+          <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <div class="addr"><span data-icon="lock"></span><span id="addrText">https://browser-use.com</span></div>
+          <span class="live" id="live"><span class="pulse"></span><span id="liveLabel">Idle</span></span>
+        </div>
+        <div class="console-body">
+          <div class="stage" id="stage" aria-live="polite"></div>
+          <div class="runner">
+            <div class="runner-top">
+              <div class="progress"><span id="progressBar"></span></div>
+              <span class="timer" id="timer">00:00</span>
+            </div>
+            <div class="log" id="log"></div>
+            <div class="result" id="result" hidden></div>
+          </div>
+        </div>
+        <div class="console-input">
+          <form id="taskForm">
+            <label class="sr-only" for="taskInput">Describe a browser task</label>
+            <textarea id="taskInput" rows="2" spellcheck="false">Book a driving test in San Francisco for the first available Tuesday morning.</textarea>
+            <div class="input-actions">
+              <div class="presets" id="presets">
+                <button type="button" class="chip active" data-preset="driving">Book a driving test</button>
+                <button type="button" class="chip" data-preset="hackernews">Top Hacker News post</button>
+                <button type="button" class="chip" data-preset="form">Fill a contact form</button>
+              </div>
+              <button type="submit" class="btn btn-primary" id="runBtn"><span data-icon="play"></span> Run agent</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="trust">
+    <div class="wrap trust-inner">
+      <span class="trust-label">One library, your model</span>
+      <div class="trust-chips">
+        <span>OpenAI</span><span>Anthropic</span><span>Google</span><span>Groq</span><span>Ollama</span><span>BU2</span>
+      </div>
+      <div class="trust-stats">
+        <div><b>$0.02</b><span>per browser-hour</span></div>
+        <div><b>15 min</b><span>cloud sessions</span></div>
+        <div><b>31</b><span>browser actions</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="paths">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="kicker">Three ways to run</span>
+        <h2>Same agent, your choice of control.</h2>
+        <p>Start with a one-line hosted API, connect your existing coding agent over the CLI, or run the open-source library in your own application.</p>
+      </div>
+      <div class="cards3">
+        <article class="path-card">
+          <div class="path-top">
+            <span class="icon-box ember"><span data-icon="cloud"></span></span>
+            <span class="badge ember">Hosted</span>
+          </div>
+          <h3>Cloud</h3>
+          <p>Send a task, get a result. Browser Use runs the agent, the stealth browser and all the infrastructure.</p>
+          <a class="path-link" href="https://docs.browser-use.com/cloud/agent/quickstart">Cloud quickstart <span data-icon="arrow-right"></span></a>
+        </article>
+        <article class="path-card">
+          <div class="path-top">
+            <span class="icon-box teal"><span data-icon="terminal"></span></span>
+            <span class="badge teal">Connect</span>
+          </div>
+          <h3>CLI</h3>
+          <p>Give Claude Code, Codex, Cursor or another agent control of a real browser, interactively or from scripts.</p>
+          <a class="path-link" href="https://github.com/browser-use/browser-harness">Browser Harness <span data-icon="arrow-right"></span></a>
+        </article>
+        <article class="path-card">
+          <div class="path-top">
+            <span class="icon-box gold"><span data-icon="code"></span></span>
+            <span class="badge gold">Open source</span>
+          </div>
+          <h3>Python library</h3>
+          <p>Run the agent locally with custom tools, structured output and the model of your choice.</p>
+          <a class="path-link" href="https://docs.browser-use.com/open-source/introduction">Library docs <span data-icon="arrow-right"></span></a>
+        </article>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-tabs" role="tablist" aria-label="Code examples">
+          <button class="code-tab active" role="tab" aria-selected="true" data-tab="python"><span data-icon="code"></span> Python</button>
+          <button class="code-tab" role="tab" aria-selected="false" data-tab="cli"><span data-icon="terminal"></span> CLI</button>
+          <button class="code-tab" role="tab" aria-selected="false" data-tab="cloud"><span data-icon="cloud"></span> Cloud API</button>
+        </div>
+        <div class="code-body">
+          <button class="copy" type="button" data-copy="python"><span data-icon="copy"></span> Copy</button>
+          <pre id="panel-python"><code><span class="tok-kw">import</span> asyncio
+<span class="tok-kw">from</span> browser_use <span class="tok-kw">import</span> Agent, ChatBrowserUse
+<span class="tok-kw">from</span> dotenv <span class="tok-kw">import</span> load_dotenv
+
+load_dotenv()
+
+<span class="tok-kw">async def</span> <span class="tok-fn">main</span>():
+    agent = Agent(
+        task=<span class="tok-str">"Find the number of stars of the browser-use repo"</span>,
+        llm=ChatBrowserUse(model=<span class="tok-str">"bu-2-0"</span>),
+    )
+    history = <span class="tok-kw">await</span> agent.run()
+    print(history.final_result())
+
+asyncio.run(main())</code></pre>
+          <pre id="panel-cli" hidden><code><span class="tok-cm"># Give Claude Code or Codex a real browser</span>
+uv add browser-use
+browser-use skill install</code></pre>
+          <pre id="panel-cloud" hidden><code>curl -X POST https://api.browser-use.com/api/v2/tasks \
+  -H <span class="tok-str">"X-Browser-Use-API-Key: &lt;apiKey&gt;"</span> \
+  -H <span class="tok-str">"Content-Type: application/json"</span> \
+  -d <span class="tok-str">'{"task": "Search for the top Hacker News post and return the title and url."}'</span></code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="band">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="kicker">Built for real work</span>
+        <h2>Infrastructure that survives the hard parts.</h2>
+        <p>Detection, login walls, IP reputation and audit trails. Cloud browsers handle the friction so the agent can focus on the task.</p>
+      </div>
+      <div class="features-grid">
+        <article class="feat">
+          <h3><span class="icon-box ember"><span data-icon="fingerprint"></span></span> Stealth browsers</h3>
+          <p>Forked Chromium tuned to be fast, lightweight and hard to flag as a bot, with ad blocking built in.</p>
+        </article>
+        <article class="feat">
+          <h3><span class="icon-box teal"><span data-icon="shield-check"></span></span> CAPTCHA handling</h3>
+          <p>Browser configuration and routing designed to reduce detection and CAPTCHA challenges before they block the task.</p>
+        </article>
+        <article class="feat">
+          <h3><span class="icon-box gold"><span data-icon="globe"></span></span> Residential proxies</h3>
+          <p>Route sessions through residential IPs with selectable country, keeping automations trusted and consistent.</p>
+        </article>
+        <article class="feat">
+          <h3><span class="icon-box teal"><span data-icon="user-check"></span></span> Profiles and auth</h3>
+          <p>Sync cookies or upload a Chrome profile so the agent starts already signed in to the services it needs.</p>
+        </article>
+        <article class="feat">
+          <h3><span class="icon-box ember"><span data-icon="video"></span></span> Session recordings</h3>
+          <p>Every session is recorded and replayable, with live viewing while a task is still running.</p>
+        </article>
+        <article class="feat">
+          <h3><span class="icon-box gold"><span data-icon="lock"></span></span> Data policies</h3>
+          <p>Profiles, recordings and retention are governed under the Browser Use Cloud data policy.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="cloud">
+    <div class="wrap cloud-split">
+      <div class="cloud-copy">
+        <span class="kicker">Browser Use Cloud</span>
+        <h2>An untraceable browser, on demand.</h2>
+        <p>Sessions spin up a remote browser in seconds. One browser per session, up to 15 minutes of runtime, controllable through an agent or directly over CDP.</p>
+        <ul class="spec-list">
+          <li><span data-icon="check-circle-2"></span><div><b>Purpose-built Chromium</b><span>Fast, lightweight and preloaded with quality-of-life hardening.</span></div></li>
+          <li><span data-icon="check-circle-2"></span><div><b>Agent-native</b><span>Optimized to work with Browser Use agents step by step.</span></div></li>
+          <li><span data-icon="check-circle-2"></span><div><b>Judge-verified results</b><span>An independent judge verifies whether each task actually completed.</span></div></li>
+        </ul>
+      </div>
+      <div class="cloud-visual" aria-hidden="true">
+        <div class="cv-top"><span data-icon="terminal"></span> session_9f2c · running</div>
+        <div class="cv-grid">
+          <div class="cv-cell"><span data-icon="zap"></span><b>1.2s</b><span>median step</span></div>
+          <div class="cv-cell"><span data-icon="shield-check"></span><b>Stealth</b><span>browser ready</span></div>
+          <div class="cv-cell"><span data-icon="globe"></span><b>US</b><span>residential IP</span></div>
+          <div class="cv-cell"><span data-icon="video"></span><b>Live</b><span>recording</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="models" class="band">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="kicker">Models</span>
+        <h2>Bring a frontier model, or use ours.</h2>
+        <p>BU2 is tuned for browser work and routed through the Browser Use gateway. Bring your own keys for OpenAI, Anthropic, Google, Groq or a local Ollama model.</p>
+      </div>
+      <div class="model-wrap">
+        <div class="model-card">
+          <span class="eyebrow">Recommended</span>
+          <h3>BU2</h3>
+          <p>The model built for browser automation. Optimized for cost and latency through batching and caching, with frontier-class task performance.</p>
+          <div class="model-meta">
+            <span>Browser-native</span><span>Lower latency</span><span>Usage-based billing</span>
+          </div>
+        </div>
+        <div class="providers">
+          <div class="provider"><span data-icon="sparkles"></span><b>OpenAI</b><span>GPT series</span></div>
+          <div class="provider"><span data-icon="bot"></span><b>Anthropic</b><span>Claude</span></div>
+          <div class="provider"><span data-icon="zap"></span><b>Google</b><span>Gemini</span></div>
+          <div class="provider"><span data-icon="command"></span><b>Ollama</b><span>Local models</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="kicker">Pricing</span>
+        <h2>Pay for what you use.</h2>
+        <p>The library is free and MIT-licensed. Model inference and hosted browsers are billed separately, and new signups get $15 in cloud credit.</p>
+      </div>
+      <div class="price-grid">
+        <article class="price">
+          <h3>Open source</h3>
+          <div class="amount">$0<span> / forever</span></div>
+          <p>Run the agent locally with your own model and browser.</p>
+          <ul>
+            <li><span data-icon="check"></span> MIT-licensed Python library</li>
+            <li><span data-icon="check"></span> Local browser or CDP</li>
+            <li><span data-icon="check"></span> Custom tools and structured output</li>
+          </ul>
+          <a class="btn btn-ghost" href="https://github.com/browser-use/browser-use">View on GitHub</a>
+        </article>
+        <article class="price hot">
+          <h3>Cloud browser</h3>
+          <div class="amount">$0.02<span> / browser-hour</span></div>
+          <p>Managed browser infrastructure with stealth and proxies.</p>
+          <ul>
+            <li><span data-icon="check"></span> Stealth Chromium browser</li>
+            <li><span data-icon="check"></span> Residential proxies by country</li>
+            <li><span data-icon="check"></span> Profiles, recordings and live view</li>
+          </ul>
+          <a class="btn btn-primary" href="https://cloud.browser-use.com">Start with $15 credit</a>
+        </article>
+        <article class="price">
+          <h3>Hosted agent</h3>
+          <div class="amount">Usage<span> based</span></div>
+          <p>Submit tasks through the API and we run the full stack.</p>
+          <ul>
+            <li><span data-icon="check"></span> Agent plus browser end to end</li>
+            <li><span data-icon="check"></span> Live session URLs</li>
+            <li><span data-icon="check"></span> Judge-verified task results</li>
+          </ul>
+          <a class="btn btn-ghost" href="https://docs.browser-use.com/cloud/agent/quickstart">Read the quickstart</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="integrations" class="band">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="kicker">Integrations</span>
+        <h2>Drops into the stack you already use.</h2>
+        <p>Drive a real browser from your coding agent, or connect the pieces you control.</p>
+      </div>
+      <div class="integrations">
+        <span class="integration"><span data-icon="terminal"></span> Claude Code</span>
+        <span class="integration"><span data-icon="code"></span> Codex</span>
+        <span class="integration"><span data-icon="mouse-pointer-click"></span> Cursor</span>
+        <span class="integration"><span data-icon="bot"></span> Hermes</span>
+        <span class="integration"><span data-icon="command"></span> OpenClaw</span>
+        <span class="integration"><span data-icon="database"></span> MCP server</span>
+        <span class="integration"><span data-icon="layers"></span> CDP</span>
+        <span class="integration"><span data-icon="cloud"></span> Agents API</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="kicker">FAQ</span>
+        <h2>Answers before you ask.</h2>
+      </div>
+      <div class="faq">
+        <details>
+          <summary>Should I use the hosted cloud, CLI, or Python library? <span data-icon="chevron-down"></span></summary>
+          <div class="faq-a">Use the hosted cloud to send tasks through the API and let Browser Use run the agent, browser and infrastructure. Use the CLI to give an existing agent like Claude Code or Codex browser access. Use the Python library to run the open-source agent in your own application with custom tools and your choice of model.</div>
+        </details>
+        <details>
+          <summary>What is the best model to use? <span data-icon="chevron-down"></span></summary>
+          <div class="faq-a">We recommend <code>BU2</code>, the model optimized for browser automation, via <code>ChatBrowserUse(model='bu-2-0')</code>. The best choice depends on your tasks, latency and budget.</div>
+        </details>
+        <details>
+          <summary>Can I use Claude, GPT or Gemini through ChatBrowserUse? <span data-icon="chevron-down"></span></summary>
+          <div class="faq-a">Yes. <code>ChatBrowserUse</code> accepts provider-prefixed model IDs such as <code>anthropic/claude-sonnet-4-6</code> or <code>google/gemini-3-pro</code>, or you can use each provider directly through its own wrapper and key.</div>
+        </details>
+        <details>
+          <summary>Do I need to write a system prompt? <span data-icon="chevron-down"></span></summary>
+          <div class="faq-a">No. <code>Agent(...)</code> supplies the Browser Use system prompt automatically. Put your task in <code>task=</code>, and use <code>extend_system_message</code> or <code>override_system_message</code> only when you need custom behavior.</div>
+        </details>
+        <details>
+          <summary>How do I handle authentication? <span data-icon="chevron-down"></span></summary>
+          <div class="faq-a">For a local browser, reuse a signed-in Chrome profile with <code>Browser.from_system_chrome()</code>. For cloud, use profile sync to transfer cookies, or upload a full Chrome profile to a cloud profile.</div>
+        </details>
+        <details>
+          <summary>Can I use this for free? <span data-icon="chevron-down"></span></summary>
+          <div class="faq-a">The Python library is free and MIT-licensed. Model inference and hosted browsers are billed by their providers. You can also run a local browser with a local model through Ollama.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <div class="wrap inner">
+      <div>
+        <h2>Tell your computer what to do.</h2>
+        <p>New Google, GitHub and Microsoft signups get $15 in cloud credit.</p>
+      </div>
+      <a class="btn btn-primary" href="https://cloud.browser-use.com">Get started free</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="#top"><span class="logo-mark" aria-hidden="true"><span data-icon="mouse-pointer-click"></span></span><span>Browser<em>Use</em></span></a>
+        <p>The open-source browser agent. Python and TypeScript, with hosted cloud browsers and an agents API.</p>
+      </div>
+      <div class="foot-cols">
+        <div class="foot-col">
+          <h4>Product</h4>
+          <a href="https://cloud.browser-use.com">Cloud</a>
+          <a href="https://github.com/browser-use/browser-harness">Browser Harness</a>
+          <a href="https://docs.browser-use.com/open-source/bu-2-0-model-card">BU2</a>
+          <a href="https://browser-use.com/showcase">Showcase</a>
+        </div>
+        <div class="foot-col">
+          <h4>Developers</h4>
+          <a href="https://docs.browser-use.com">Documentation</a>
+          <a href="https://github.com/browser-use/benchmark">Benchmark</a>
+          <a href="https://github.com/browser-use/browser-use">GitHub</a>
+          <a href="https://github.com/browser-use/sdk">Cloud SDK</a>
+        </div>
+        <div class="foot-col">
+          <h4>Company</h4>
+          <a href="https://browser-use.com/posts">Blog</a>
+          <a href="https://browser-use.com/legal/terms-of-service">Terms of Service</a>
+          <a href="https://browser-use.com/privacy">Privacy Policy</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>MIT licensed. Made in Zurich and San Francisco.</span>
+      <span>Browser Use</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var ICONS = {
+    "arrow-right": '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+    "check": '<path d="M20 6 9 17l-5-5"/>',
+    "check-circle-2": '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+    "chevron-down": '<path d="m6 9 6 6 6-6"/>',
+    "cloud": '<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>',
+    "code": '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
+    "copy": '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+    "github": '<path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/>',
+    "terminal": '<polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/>',
+    "zap": '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
+    "shield-check": '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1 1 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
+    "mouse-pointer-click": '<path d="M9 9l5 12 1.8-5.2L21 14Z"/><path d="M7.2 2.2 8 5.1"/><path d="m5.1 8-2.9-.8"/><path d="M14 4.1 12 6"/><path d="m6 12-1.9 2"/>',
+    "globe": '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+    "video": '<path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/>',
+    "user-check": '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/>',
+    "lock": '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+    "fingerprint": '<path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/>',
+    "sparkles": '<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>',
+    "bot": '<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>',
+    "command": '<path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3"/>',
+    "database": '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/>',
+    "layers": '<path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>',
+    "menu": '<line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>',
+    "play": '<path d="m6 3 14 9-14 9V3z"/>',
+    "refresh-cw": '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+    "circle-dot": '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="1"/>',
+    "search": '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+    "calendar": '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
+    "clock": '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+    "file-code": '<path d="M10 12.5 8 15l2 2.5"/><path d="m14 12.5 2 2.5-2 2.5"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/>'
+  };
+
+  function svg(name) {
+    var body = ICONS[name] || ICONS["circle-dot"];
+    return '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + body + "</svg>";
+  }
+
+  function hydrateIcons(root) {
+    (root || document).querySelectorAll("[data-icon]").forEach(function (el) {
+      el.innerHTML = svg(el.getAttribute("data-icon"));
+    });
+  }
+
+  function pageLoading() {
+    return '<div class="mock"><div class="mock-top"><span class="mock-logo">Loading</span><span class="mock-nav">agent is reading the page</span></div><div class="skeleton"><i class="w60"></i><i class="w80"></i><i class="w40"></i><i class="tall"></i></div></div>';
+  }
+
+  function dmvLanding() {
+    return '<div class="mock"><div class="mock-top"><span class="mock-logo">CA <em>DMV</em></span><span class="mock-nav">Appointments</span></div><div class="mock-panel"><div class="mock-h">Book an appointment</div><p class="mock-sub">Choose a service and a field office.</p><div class="tag-row"><span class="tag sel">Behind-the-wheel test</span><span class="tag">Knowledge test</span><span class="tag">Real ID</span></div><div class="field">San Francisco field office</div><div class="mock-btn">Continue</div></div></div>';
+  }
+
+  function dmvCalendar() {
+    return '<div class="mock"><div class="mock-top"><span class="mock-logo">CA <em>DMV</em></span><span class="mock-nav">Pick a date</span></div><div class="mock-panel"><div class="cal-head"><span>October 2026</span><span class="ok"><span data-icon="calendar"></span> Tuesdays open</span></div><div class="cal-grid"><i class="head">M</i><i class="head">T</i><i class="head">W</i><i class="head">T</i><i class="head">F</i><i class="head">S</i><i class="head">S</i><i class="dim">28</i><i class="dim">29</i><i class="dim">30</i><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i><i>7</i><i>8</i><i>9</i><i>10</i><i>11</i><i>12</i><i>13</i><i class="pick">14</i><i>15</i><i>16</i><i>17</i><i>18</i><i>19</i><i>20</i><i>21</i><i>22</i><i>23</i><i>24</i><i>25</i><i>26</i><i>27</i><i>28</i><i>29</i><i>30</i><i>31</i></div></div></div>';
+  }
+
+  function dmvSlots() {
+    return '<div class="mock"><div class="mock-top"><span class="mock-logo">CA <em>DMV</em></span><span class="mock-nav">Choose a time</span></div><div class="mock-panel"><div class="mock-h">Tuesday, Oct 14</div><p class="mock-sub">Morning availability at San Francisco.</p><div class="slots"><span class="slot">08:10</span><span class="slot">08:50</span><span class="slot sel">09:40</span><span class="slot">10:20</span><span class="slot">11:00</span><span class="slot">11:40</span></div></div></div>';
+  }
+
+  function dmvConfirm() {
+    return '<div class="mock"><div class="mock-top"><span class="mock-logo">CA <em>DMV</em></span><span class="mock-nav">Confirmed</span></div><div class="mock-panel"><div class="mock-h">Appointment confirmed</div><ul class="summary"><li><span>Service</span><b>Behind-the-wheel test</b></li><li><span>Office</span><b>San Francisco</b></li><li><span>When</span><b>Tue, Oct 14 · 09:40</b></li></ul><span class="ok"><span data-icon="check"></span> Confirmation #DMV-48812</span></div></div>';
+  }
+
+  function hnLanding() {
+    return '<div class="mock"><div class="mock-top"><span class="mock-logo">Hacker <em>News</em></span><span class="mock-nav">front page</span></div><div class="hn-item top"><span class="rank">1.</span><div><h4>Show HN: A browser that agents can actually drive</h4><p>428 points · 142 comments</p></div></div><div class="hn-item"><span class="rank">2.</span><div><h4>Building reliable browser automation at scale</h4><p>301 points · 88 comments</p></div></div><div class="hn-item"><span class="rank">3.</span><div><h4>Ask HN: How do you test flaky UI flows?</h4><p>212 points · 74 comments</p></div></div></div>';
+  }
+
+  function hnPost() {
+    return '<div class="mock"><div class="mock-top"><span class="mock-logo">Hacker <em>News</em></span><span class="mock-nav">item</span></div><div class="mock-panel"><div class="mock-h">Show HN: A browser that agents can actually drive</div><p class="mock-sub">browser-use.github.io</p><span class="ok"><span data-icon="check"></span> Top result selected</span><p class="mock-sub">428 points · 142 comments · 3 hours ago</p></div></div>';
+  }
+
+  function formPage() {
+    return '<div class="mock"><div class="mock-top"><span class="mock-logo">Acme <em>Studio</em></span><span class="mock-nav">Contact</span></div><div class="mock-panel"><div class="mock-h">Tell us about your project</div><div class="form-field"><label>Name</label><input value="Ada Lovelace" readonly></div><div class="form-field"><label>Email</label><input value="ada@example.com" readonly></div><div class="form-field"><label>Message</label><textarea rows="2" readonly>We would like an automation partner.</textarea></div><div class="mock-btn">Send message</div></div></div>';
+  }
+
+  function formDone() {
+    return '<div class="mock"><div class="mock-top"><span class="mock-logo">Acme <em>Studio</em></span><span class="mock-nav">Contact</span></div><div class="mock-panel"><div class="mock-h">Message sent</div><p class="mock-sub">Thanks, we will reply within one business day.</p><span class="ok"><span data-icon="check"></span> Submitted</span></div></div>';
+  }
+
+  function genericSearch(query) {
+    return '<div class="mock"><div class="mock-top"><span class="mock-logo">Search</span><span class="mock-nav">results</span></div><div class="hn-item top"><span class="rank">1.</span><div><h4>' + escapeHtml(query) + '</h4><p>top result · matches your query</p></div></div><div class="hn-item"><span class="rank">2.</span><div><h4>Related result one</h4><p>context</p></div></div><div class="hn-item"><span class="rank">3.</span><div><h4>Related result two</h4><p>context</p></div></div></div>';
+  }
+
+  function genericDone(query) {
+    return '<div class="mock"><div class="mock-top"><span class="mock-logo">Result</span><span class="mock-nav">extracted</span></div><div class="mock-panel"><div class="mock-h">Extracted for you</div><p class="mock-sub">' + escapeHtml(query) + '</p><span class="ok"><span data-icon="check"></span> Structured result ready</span></div></div>';
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  var scenarios = {
+    driving: {
+      url: "https://dmv.ca.gov/appointments",
+      frames: [
+        { icon: "sparkles", text: "Plan the task" },
+        { icon: "mouse-pointer-click", text: "Open the appointment portal" },
+        { icon: "mouse-pointer-click", text: "Select behind-the-wheel test" },
+        { icon: "calendar", text: "Pick Tuesday, October 14" },
+        { icon: "clock", text: "Reserve the 09:40 slot" },
+        { icon: "check", text: "Confirm the booking" }
+      ],
+      pages: [pageLoading, dmvLanding, dmvLanding, dmvCalendar, dmvSlots, dmvConfirm],
+      result: "Booked: behind-the-wheel test at San Francisco DMV on Tuesday, Oct 14 at 09:40. Confirmation #DMV-48812."
+    },
+    hackernews: {
+      url: "https://news.ycombinator.com",
+      frames: [
+        { icon: "sparkles", text: "Plan the task" },
+        { icon: "search", text: "Open Hacker News front page" },
+        { icon: "mouse-pointer-click", text: "Open the top post" },
+        { icon: "file-code", text: "Extract title, points and url" },
+        { icon: "check", text: "Return the result" }
+      ],
+      pages: [pageLoading, hnLanding, hnPost, hnPost, hnPost],
+      result: 'Top post: "Show HN: A browser that agents can actually drive" · 428 points · https://news.ycombinator.com/item?id=43210001'
+    },
+    form: {
+      url: "https://acme.studio/contact",
+      frames: [
+        { icon: "sparkles", text: "Plan the task" },
+        { icon: "mouse-pointer-click", text: "Open the contact form" },
+        { icon: "mouse-pointer-click", text: "Fill name and email" },
+        { icon: "file-code", text: "Write the message" },
+        { icon: "check", text: "Submit the form" }
+      ],
+      pages: [pageLoading, formPage, formPage, formPage, formDone],
+      result: "Submitted the contact form on Acme Studio. Confirmation shown on page."
+    }
+  };
+
+  var reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var stepDelay = reducedMotion ? 140 : 920;
+  var state = {
+    running: false,
+    runToken: 0,
+    timerStart: 0,
+    timerInterval: null,
+    currentScenario: "driving"
+  };
+
+  var el = {
+    stage: document.getElementById("stage"),
+    log: document.getElementById("log"),
+    result: document.getElementById("result"),
+    progress: document.getElementById("progressBar"),
+    timer: document.getElementById("timer"),
+    addr: document.getElementById("addrText"),
+    live: document.getElementById("live"),
+    liveLabel: document.getElementById("liveLabel"),
+    runBtn: document.getElementById("runBtn"),
+    form: document.getElementById("taskForm"),
+    input: document.getElementById("taskInput"),
+    presets: document.getElementById("presets")
+  };
+
+  function setLive(mode, label) {
+    el.live.className = "live" + (mode ? " " + mode : "");
+    el.liveLabel.textContent = label;
+  }
+
+  function startTimer() {
+    state.timerStart = Date.now();
+    state.timerInterval = setInterval(function () {
+      var sec = Math.floor((Date.now() - state.timerStart) / 1000);
+      var mm = String(Math.floor(sec / 60)).padStart(2, "0");
+      var ss = String(sec % 60).padStart(2, "0");
+      el.timer.textContent = mm + ":" + ss;
+    }, 250);
+  }
+
+  function stopTimer() {
+    clearInterval(state.timerInterval);
+    state.timerInterval = null;
+  }
+
+  function resetLog() {
+    el.log.innerHTML = "";
+    el.result.hidden = true;
+    el.result.innerHTML = "";
+    el.progress.style.width = "0%";
+    el.timer.textContent = "00:00";
+  }
+
+  function addStep(frame, status, index, total) {
+    var row = document.createElement("div");
+    row.className = "step " + status;
+    row.innerHTML = svg(frame.icon) + '<span class="step-text">' + escapeHtml(frame.text) + '</span><span class="chip-status">' + (status === "done" ? "done" : status === "active" ? (index + 1) + "/" + total : "") + "</span>";
+    el.log.appendChild(row);
+    el.log.scrollTop = el.log.scrollHeight;
+    return row;
+  }
+
+  function delay(ms) {
+    return new Promise(function (resolve) { setTimeout(resolve, ms); });
+  }
+
+  function renderPage(fn) {
+    el.stage.innerHTML = fn();
+    hydrateIcons(el.stage);
+  }
+
+  function showResult(text) {
+    el.result.hidden = false;
+    el.result.innerHTML = '<div class="result-head"><span data-icon="check-circle-2"></span> Final result</div><div class="result-body"><p>' + escapeHtml(text) + '</p><button class="icon-btn" type="button" data-action="copy-result"><span data-icon="copy"></span> Copy</button></div>';
+    hydrateIcons(el.result);
+    var btn = el.result.querySelector("[data-action='copy-result']");
+    if (btn) btn.addEventListener("click", function () { copyText(text, btn); });
+  }
+
+  function updateControls(running) {
+    el.runBtn.disabled = running;
+    el.input.disabled = running;
+    el.runBtn.innerHTML = running ? svg("refresh-cw") + " Running" : svg("play") + " Run agent";
+    if (running) {
+      el.runBtn.classList.add("running");
+    } else {
+      el.runBtn.classList.remove("running");
+    }
+  }
+
+  function copyText(text, btn) {
+    var original = btn.innerHTML;
+    function fallback() {
+      var ta = document.createElement("textarea");
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).catch(fallback);
+    } else {
+      fallback();
+    }
+    btn.innerHTML = svg("check") + " Copied";
+    setTimeout(function () { btn.innerHTML = original; hydrateIcons(btn); }, 1400);
+  }
+
+  async function runScenario(name, query) {
+    if (state.running) return;
+    var scenario = name === "custom" ? buildCustom(query) : scenarios[name];
+    if (!scenario) return;
+    state.running = true;
+    var token = ++state.runToken;
+    state.currentScenario = name;
+    updateControls(true);
+    resetLog();
+    el.addr.textContent = scenario.url;
+    setLive("on", "Running");
+    startTimer();
+
+    var frames = scenario.frames;
+    var total = frames.length;
+    var currentRow = null;
+
+    for (var i = 0; i < total; i++) {
+      if (token !== state.runToken) return;
+      renderPage(scenario.pages[i]);
+      currentRow = addStep(frames[i], "active", i, total);
+      setLive("on", "Step " + (i + 1) + " of " + total);
+      await delay(stepDelay);
+      if (token !== state.runToken) return;
+      if (currentRow) {
+        currentRow.classList.remove("active");
+        currentRow.classList.add("done");
+      }
+      el.progress.style.width = Math.round(((i + 1) / total) * 100) + "%";
+      if (i < total - 1) await delay(reducedMotion ? 40 : 260);
+    }
+
+    if (token !== state.runToken) return;
+    showResult(scenario.result);
+    setLive("done", "Complete");
+    stopTimer();
+    state.running = false;
+    updateControls(false);
+  }
+
+  function buildCustom(query) {
+    return {
+      url: "https://search.example.com?q=" + encodeURIComponent(query),
+      frames: [
+        { icon: "sparkles", text: "Plan the task" },
+        { icon: "search", text: "Search the web" },
+        { icon: "mouse-pointer-click", text: "Open the top result" },
+        { icon: "file-code", text: "Extract key details" },
+        { icon: "check", text: "Summarize the result" }
+      ],
+      pages: [
+        pageLoading,
+        function () { return genericSearch(query); },
+        function () { return genericDone(query); },
+        function () { return genericDone(query); },
+        function () { return genericDone(query); }
+      ],
+      result: 'Extracted from the top result for "' + query + '": a concise summary with source, title and key details.'
+    };
+  }
+
+  function selectPreset(name, prompt) {
+    state.currentScenario = name;
+    el.input.value = prompt;
+    var chips = el.presets.querySelectorAll(".chip");
+    chips.forEach(function (c) { c.classList.toggle("active", c.dataset.preset === name); });
+  }
+
+  el.form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var value = el.input.value.trim();
+    var query = value || "Find the number of stars of the browser-use repo";
+    var scenario = scenarios[state.currentScenario] ? state.currentScenario : "custom";
+    runScenario(scenario, query);
+  });
+
+  el.presets.addEventListener("click", function (e) {
+    var btn = e.target.closest(".chip");
+    if (!btn) return;
+    var preset = btn.dataset.preset;
+    var prompts = {
+      driving: "Book a driving test in San Francisco for the first available Tuesday morning.",
+      hackernews: "Open Hacker News and return the title, points and url of the top post.",
+      form: "Fill the Acme Studio contact form with a short project message and submit it."
+    };
+    selectPreset(preset, prompts[preset]);
+  });
+
+  el.input.addEventListener("input", function () {
+    state.currentScenario = "custom";
+    el.presets.querySelectorAll(".chip").forEach(function (c) { c.classList.remove("active"); });
+  });
+
+  var burger = document.getElementById("burger");
+  var menu = document.getElementById("menu");
+  burger.addEventListener("click", function () {
+    var open = menu.hidden;
+    menu.hidden = !open;
+    burger.setAttribute("aria-expanded", String(open));
+  });
+  menu.addEventListener("click", function (e) {
+    if (e.target.closest("a")) {
+      menu.hidden = true;
+      burger.setAttribute("aria-expanded", "false");
+    }
+  });
+
+  var tabs = document.querySelectorAll(".code-tab");
+  tabs.forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      tabs.forEach(function (t) { t.classList.remove("active"); t.setAttribute("aria-selected", "false"); });
+      tab.classList.add("active");
+      tab.setAttribute("aria-selected", "true");
+      document.querySelectorAll(".code-body pre").forEach(function (pre) { pre.hidden = true; });
+      var panel = document.getElementById("panel-" + tab.dataset.tab);
+      if (panel) panel.hidden = false;
+    });
+  });
+
+  document.querySelectorAll("[data-copy]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var panel = document.getElementById("panel-" + btn.dataset.copy);
+      if (panel) copyText(panel.innerText.trim(), btn);
+    });
+  });
+
+  hydrateIcons(document);
+  renderPage(pageLoading);
+  addStep(scenarios.driving.frames[0], "pending", 0, scenarios.driving.frames.length);
+})();
+</script>
+</body>
+</html>
