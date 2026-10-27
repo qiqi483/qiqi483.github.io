@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Loom Studio - AI 工作流平台</title>
+  <meta name="description" content="一个可回放每一步决策的轻量 LLM 应用开发平台。">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark" data-icon="loom"></div>
+        <div class="brand-name">Loom Studio<small>AI 工作流平台</small></div>
+      </div>
+      <nav class="side-nav" id="side-nav">
+        <button class="nav-item active" data-view="dashboard" title="概览"><span data-icon="dashboard"></span><span>概览</span></button>
+        <button class="nav-item" data-view="workflow" title="工作流"><span data-icon="workflow"></span><span>工作流</span></button>
+        <button class="nav-item" data-view="lab" title="Prompt 实验室"><span data-icon="compare"></span><span>Prompt 实验室</span></button>
+        <button class="nav-item" data-view="knowledge" title="知识库"><span data-icon="database"></span><span>知识库</span></button>
+        <button class="nav-item" data-view="observability" title="可观测性"><span data-icon="activity"></span><span>可观测性</span></button>
+        <button class="nav-item" data-view="settings" title="设置"><span data-icon="settings"></span><span>设置</span></button>
+      </nav>
+      <div class="side-foot">
+        <div class="demo-pill"><span class="dot"></span>演示模式已启用</div>
+        <div class="version">Loom Studio v0.1 · 本地运行</div>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <h1 id="page-title">概览</h1>
+        <span class="crumb" id="page-crumb"></span>
+        <div class="spacer"></div>
+        <span class="hint" id="page-hint"></span>
+        <span id="top-actions"></span>
+      </header>
+      <main id="view"></main>
+    </div>
+  </div>
+
+  <div id="modal-root"></div>
+  <div id="toast-root" class="toast-wrap"></div>
+  <script src="app.js"></script>
+</body>
+</html>
